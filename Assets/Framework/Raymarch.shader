@@ -2,7 +2,8 @@ Shader "Unlit/S_Raymarch"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        _Color("Color", color) = (1, 0, 0, 1)
+        _Size("Radius", Float) = 2.0
     }
     
     SubShader
@@ -29,24 +30,29 @@ Shader "Unlit/S_Raymarch"
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
             };
-
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-
+            
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = v.uv;
                 return o;
             }
 
+            fixed4 _Color;
+            fixed4 _Size;
+
+            float sdSphere(float2 p, float size) {
+                return length(p) - size;
+            }
+            
             fixed4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
+                fixed4 col = sdSphere(i.uv, 5.0);
                 return col;
             }
+            
             ENDCG
         }
     }
